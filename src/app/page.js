@@ -335,7 +335,7 @@ export default function YouTubeThumbnailGenerator() {
     ];
   
     let currentStageIndex = 0;
-    const [currentMessage, setCurrentMessage] = useState('');
+    const [currentMessage, setCurrentMessage] = useState('.');
   
     const progressInterval = setInterval(() => {
       if (currentStageIndex < progressStages.length) {
