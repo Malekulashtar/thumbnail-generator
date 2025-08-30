@@ -64,7 +64,7 @@ export async function POST(request) {
       } catch (error) {
         console.error('Generation failed:', error);
         return NextResponse.json(
-          { error: 'Image generation failed' },
+          { error: `Image generation failed ${error}` },
           { status: 500 }
         );
       }
@@ -158,7 +158,9 @@ async function generateImage(formData,imageUrl) {
       You also understand marketing and business and well aware of the user psychology.So,design the thumnail accordingly such that it is catchy and user friendly.
       Also you can use your creativity to the best to add subtle icons or graphics as well according to my above preferences if it fits in it.`
 
-      const ai = new GoogleGenAI();
+      const ai = new GoogleGenAI({
+        apiKey: process.env.GEMINI_API_KEY
+      });
     
       const prompt = [
         { text: formatted_prompt },

@@ -328,7 +328,7 @@ export default function YouTubeThumbnailGenerator() {
     // Enhanced progress with realistic stages
     const progressStages = [
       { progress: 15, message: 'Analyzing your profile photo...', duration: 2000 },
-      { progress: 30, message: 'Understanding your requirements...', duration: 3000 },
+      { progress: 30, message: 'Understanding your requirements...', duration: 8000 },
       { progress: 45, message: 'Creating thumbnail variation 1/3...', duration: 8000 },
       { progress: 65, message: 'Creating thumbnail variation 2/3...', duration: 8000 },
       { progress: 85, message: 'Creating thumbnail variation 3/3...', duration: 8000 },
@@ -373,11 +373,11 @@ export default function YouTubeThumbnailGenerator() {
         const thumbnailsWithBlobs = await Promise.all(
           result.thumbnails.map(async (thumbnail, index) => {
             try {
-              const imgResponse = await fetch(thumbnail.url);
+              const imgResponse = await fetch(thumbnail);
               const blob = await imgResponse.blob();
               return {
                 id: index + 1,
-                url: thumbnail.url,
+                url: thumbnail,
                 blob: blob,
                 style: thumbnail.style || `Variation ${index + 1}`,
                 description: thumbnail.description || ''
@@ -386,7 +386,7 @@ export default function YouTubeThumbnailGenerator() {
               console.error('Error fetching thumbnail:', error);
               return {
                 id: index + 1,
-                url: thumbnail.url,
+                url: thumbnail,
                 blob: null,
                 style: `Variation ${index + 1}`,
                 description: ''
