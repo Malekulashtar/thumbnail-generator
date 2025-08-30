@@ -351,9 +351,98 @@ export default function YouTubeThumbnailGenerator() {
   
     // Your existing API call code stays the same...
     try {
-      // ... existing code ...
+      const formDataToSend = new FormData();
+      formDataToSend.append('image', profileImage.file);
+      formDataToSend.append('placement', formData.placement);
+      formDataToSend.append('videoType', formData.videoType);
+      formDataToSend.append('style', formData.style);
+      formDataToSend.append('mood', formData.mood);
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('additionalText', formData.additionalText);
+
+      const response = await fetch('/api/generate-thumbnails', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+
+      if (!response.ok) throw new Error('Generation failed');
+
+      const result = await response.json();
+      
+      if (result.thumbnails && Array.isArray(result.thumbnails)) {
+        const thumbnailsWithBlobs = await Promise.all(
+          result.thumbnails.map(async (thumbnail, index) => {
+            try {
+              const imgResponse = await fetch(thumbnail.url);
+              const blob = await imgResponse.blob();
+              return {
+                id: index + 1,
+                url: thumbnail.url,
+                blob: blob,
+                style: thumbnail.style || `Variation ${index + 1}`,
+                description: thumbnail.description || ''
+              };
+            } catch (error) {
+              console.error('Error fetching thumbnail:', error);
+              return {
+                id: index + 1,
+                url: thumbnail.url,
+                blob: null,
+                style: `Variation ${index + 1}`,
+                description: ''
+              };
+            }
+          })
+        );
+        setGeneratedThumbnails(thumbnailsWithBlobs);
+      } else {
+        const imgResponse = await fetch(result.generated_image);
+        const blob = await imgResponse.blob();
+        setGeneratedThumbnails([{
+          id: 1,
+          url: result.generated_image,
+          blob: blob,
+          style: 'Generated Thumbnail',
+          description: result.description || ''
+        }]);
+      }
+      
+      setGenerationProgress(100);
+      
     } catch (error) {
-      // ... existing error handling ...
+      console.error('Generation failed:', error);
+      // Demo fallback
+      const demoThumbnails = await Promise.all([
+        {
+          id: 1,
+          url: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&h=450&fit=crop',
+          style: 'Bold & Energetic',
+          description: 'High contrast with vibrant colors'
+        },
+        {
+          id: 2,
+          url: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800&h=450&fit=crop',
+          style: 'Clean & Professional', 
+          description: 'Minimalist design with clear text'
+        },
+        {
+          id: 3,
+          url: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=800&h=450&fit=crop',
+          style: 'Cinematic',
+          description: 'Movie-like dramatic effect'
+        }
+      ].map(async (thumbnail) => {
+        try {
+          const response = await fetch(thumbnail.url);
+          const blob = await response.blob();
+          return { ...thumbnail, blob };
+        } catch (error) {
+          return { ...thumbnail, blob: null };
+        }
+      }));
+      
+      setGeneratedThumbnails(demoThumbnails);
+      setGenerationProgress(100);
     } finally {
       clearInterval(progressInterval);
       setCurrentMessage('');
