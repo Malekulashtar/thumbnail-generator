@@ -44,6 +44,7 @@ export default function YouTubeThumbnailGenerator() {
   const [generatedThumbnails, setGeneratedThumbnails] = useState([]);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState('');
   
   // Questionnaire data
   const [formData, setFormData] = useState({
@@ -335,7 +336,6 @@ export default function YouTubeThumbnailGenerator() {
     ];
   
     let currentStageIndex = 0;
-    const [currentMessage, setCurrentMessage] = useState('.');
   
     const progressInterval = setInterval(() => {
       if (currentStageIndex < progressStages.length) {
